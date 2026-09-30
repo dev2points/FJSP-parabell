@@ -67,19 +67,16 @@ Tham số:
 - `--ub`: gợi ý upper bound ban đầu (tùy chọn, nếu không đưa sẽ dùng heuristic).
 - `--seed`: seed cho heuristic ngẫu nhiên.
 - `--workers`: số bound SAT giải song song cùng lúc (mỗi bound = 1 `CaDiCaL::Solver`
-  chạy trong 1 thread riêng qua `std::async`).
+  chạy trong 1 process riêng qua `fork()`; kết quả được truyền về process chính qua pipe.
 
 ## 4. Khác biệt so với `bisec.py`
 
-- **Song song hoá**: bản Python dùng `multiprocessing` (mỗi bound một tiến trình hệ
-  điều hành riêng, có thể `kill` ngay lập tức). Bản C++ dùng `std::async`/`std::thread`
-  vì CaDiCaL là thư viện C++ liên kết tĩnh trong cùng tiến trình — không thể `kill` một
-  thread giữa chừng một cách an toàn. Thay vào đó, mỗi bound có một cờ
-  `std::atomic<bool> cancel` được `TimeTerminator` (implement `CaDiCaL::Terminator`)
-  kiểm tra định kỳ; khi một bound khác cho kết quả làm bound hiện tại trở nên vô nghĩa,
-  cờ được bật lên và `solve()` sẽ dừng ở lần CaDiCaL gọi `terminate()` kế tiếp (hợp tác,
-  không phải huỷ tức thì). Về mặt logic tìm kiếm (chia khoảng theo tỉ lệ 3/4, huỷ các
-  bound đã lỗi thời khi có SAT/UNSAT mới, dừng khi `lo > upper`) được giữ y hệt Python.
+- **Song song hoá**: mỗi bound được chạy trong một process hệ điều hành riêng bằng
+  `fork()`. Process con tạo `CaDiCaL::Solver`, gửi trạng thái/model về process cha qua
+  pipe, rồi thoát. Khi một bound khác làm worker trở nên lỗi thời, process cha gửi
+  `SIGTERM` và thu hồi process đó; timeout của CaDiCaL vẫn được kiểm soát bằng
+  `TimeTerminator`. Về mặt logic tìm kiếm (chia khoảng theo tỉ lệ 3/4, huỷ các bound
+  đã lỗi thời khi có SAT/UNSAT mới, dừng khi `lo > upper`) được giữ y hệt Python.
 - Không có `--solver auto|pysat|builtin` vì bản C++ chỉ dùng CaDiCaL trực tiếp.
 - Không in "Sequence on each machine" (bản Python cũng đã comment phần này).
 

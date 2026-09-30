@@ -17,8 +17,12 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <future>
-#include <thread>
+#include <cerrno>
+#include <csignal>
+#include <cstring>
+#include <poll.h>
+#include <sys/wait.h>
+#include <unistd.h>
 #include <unordered_set>
 #include <algorithm>
 #include <iomanip>
@@ -44,12 +48,51 @@ struct WorkerSlot
 {
     bool busy = false;
     long long bound = -1;
-    std::shared_future<BoundResult> fut;
-    std::shared_ptr<std::atomic<bool>> cancel;
-    std::shared_ptr<IncrementalBoundSolver> session;
-    long long session_bound = LLONG_MAX;
     long long preferred_bound = -1;
+    pid_t pid = -1;
+    int fd = -1;
+    std::vector<char> buffer;
 };
+
+static bool write_all(int fd, const void *data, size_t size)
+{
+    const char *bytes = static_cast<const char *>(data);
+    while (size > 0)
+    {
+        ssize_t written = write(fd, bytes, size);
+        if (written < 0 && errno == EINTR)
+            continue;
+        if (written <= 0)
+            return false;
+        bytes += written;
+        size -= static_cast<size_t>(written);
+    }
+    return true;
+}
+
+static BoundResult read_result(const std::vector<char> &buffer)
+{
+    BoundResult result;
+    int status = 2;
+    int model_size = 0;
+    std::memcpy(&status, buffer.data(), sizeof(status));
+    std::memcpy(&model_size, buffer.data() + sizeof(status), sizeof(model_size));
+    result.status = status == 0 ? "SAT" : status == 1 ? "UNSAT"
+                                                      : "TIMEOUT";
+    if (status == 0 && model_size > 0)
+    {
+        result.model.resize(static_cast<size_t>(model_size));
+        std::memcpy(result.model.data(), buffer.data() + sizeof(status) + sizeof(model_size),
+                    result.model.size() * sizeof(int));
+    }
+    return result;
+}
+
+static void stop_worker(WorkerSlot &slot)
+{
+    if (slot.busy && slot.pid > 0)
+        kill(slot.pid, SIGTERM);
+}
 
 static SearchOutcome parallel_binary_search(
     const Instance &inst, const CnfModel &m,
@@ -126,14 +169,8 @@ static SearchOutcome parallel_binary_search(
         {
             if (slot.busy)
                 continue;
-            if (slot.session && slot.session_bound <= lo)
-            {
-                slot.session.reset();
-                slot.session_bound = LLONG_MAX;
-            }
             long long cand = -1;
             if (slot.preferred_bound >= lo && slot.preferred_bound <= upper &&
-                slot.preferred_bound < slot.session_bound &&
                 !tested.count(slot.preferred_bound))
             {
                 bool is_active = false;
@@ -148,21 +185,41 @@ static SearchOutcome parallel_binary_search(
             }
             slot.preferred_bound = -1;
             if (cand < 0)
-                cand = pick_candidate(intervals, slot.session_bound);
+                cand = pick_candidate(intervals, LLONG_MAX);
             if (cand < 0)
                 break;
-            if (!slot.session)
-                slot.session = std::make_shared<IncrementalBoundSolver>(inst, m);
             slot.bound = cand;
-            slot.session_bound = cand;
             slot.busy = true;
-            slot.cancel = std::make_shared<std::atomic<bool>>(false);
-            auto cancel_ptr = slot.cancel;
-            auto session = slot.session;
-            long long b = cand;
-            slot.fut = std::async(std::launch::async, [session, b, deadline, cancel_ptr]()
-                                  { return session->solve(b, deadline, cancel_ptr); })
-                           .share();
+            slot.buffer.clear();
+
+            int pipe_fds[2];
+            if (pipe(pipe_fds) != 0)
+                throw std::runtime_error("Khong tao duoc pipe cho worker process");
+            slot.pid = fork();
+            if (slot.pid < 0)
+            {
+                close(pipe_fds[0]);
+                close(pipe_fds[1]);
+                throw std::runtime_error("Khong tao duoc worker process");
+            }
+            if (slot.pid == 0)
+            {
+                close(pipe_fds[0]);
+                auto cancel = std::make_shared<std::atomic<bool>>(false);
+                IncrementalBoundSolver session(inst, m);
+                BoundResult result = session.solve(cand, deadline, cancel);
+                int status = result.status == "SAT" ? 0 : result.status == "UNSAT" ? 1
+                                                                                   : 2;
+                int model_size = static_cast<int>(result.model.size());
+                write_all(pipe_fds[1], &status, sizeof(status));
+                write_all(pipe_fds[1], &model_size, sizeof(model_size));
+                if (model_size > 0)
+                    write_all(pipe_fds[1], result.model.data(), result.model.size() * sizeof(int));
+                close(pipe_fds[1]);
+                _exit(0);
+            }
+            close(pipe_fds[1]);
+            slot.fd = pipe_fds[0];
             log("[START] UB=" + std::to_string(cand));
         }
     };
@@ -171,9 +228,13 @@ static SearchOutcome parallel_binary_search(
     while (true)
     {
         bool any_busy = false;
+        std::vector<struct pollfd> poll_fds;
         for (auto &s : slots)
             if (s.busy)
+            {
                 any_busy = true;
+                poll_fds.push_back({s.fd, POLLIN | POLLHUP, 0});
+            }
         if (!any_busy)
             break;
         if (proven || failed)
@@ -181,17 +242,58 @@ static SearchOutcome parallel_binary_search(
         if (Clock::now() >= deadline)
             break;
 
+        if (!poll_fds.empty())
+            poll(poll_fds.data(), poll_fds.size(), 5);
         bool progressed = false;
+        size_t poll_index = 0;
         for (auto &slot : slots)
         {
             if (!slot.busy)
                 continue;
-            if (slot.fut.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready)
+            struct pollfd &event = poll_fds[poll_index++];
+            if (!(event.revents & (POLLIN | POLLHUP)))
                 continue;
-            BoundResult res = slot.fut.get();
+            char chunk[8192];
+            bool eof = false;
+            while (true)
+            {
+                ssize_t count = read(slot.fd, chunk, sizeof(chunk));
+                if (count > 0)
+                    slot.buffer.insert(slot.buffer.end(), chunk, chunk + count);
+                else if (count < 0 && errno == EINTR)
+                    continue;
+                else
+                {
+                    eof = count == 0;
+                    break;
+                }
+            }
+            if (slot.buffer.size() < sizeof(int) * 2)
+            {
+                if (!eof)
+                    continue;
+                slot.buffer.assign(sizeof(int) * 2, 0);
+                int timeout_status = 2;
+                std::memcpy(slot.buffer.data(), &timeout_status, sizeof(timeout_status));
+            }
+            int model_size = 0;
+            std::memcpy(&model_size, slot.buffer.data() + sizeof(int), sizeof(model_size));
+            size_t expected_size = sizeof(int) * 2 + static_cast<size_t>(std::max(0, model_size)) * sizeof(int);
+            if (slot.buffer.size() < expected_size)
+            {
+                if (!eof)
+                    continue;
+                std::fill(slot.buffer.begin(), slot.buffer.end(), 0);
+                int timeout_status = 2;
+                std::memcpy(slot.buffer.data(), &timeout_status, sizeof(timeout_status));
+            }
+            BoundResult res = read_result(slot.buffer);
             long long bound = slot.bound;
             slot.busy = false;
-            slot.cancel.reset();
+            close(slot.fd);
+            waitpid(slot.pid, nullptr, 0);
+            slot.fd = -1;
+            slot.pid = -1;
             progressed = true;
             tested.insert(bound);
 
@@ -199,8 +301,6 @@ static SearchOutcome parallel_binary_search(
             {
                 if (res.status != "SAT")
                 {
-                    slot.session.reset();
-                    slot.session_bound = LLONG_MAX;
                     slot.preferred_bound = -1;
                 }
                 continue; // ket qua da loi thoi (stale)
@@ -228,32 +328,20 @@ static SearchOutcome parallel_binary_search(
                     "  | LB=" + std::to_string(lo) + " UB=" + std::to_string(out.cmax));
                 for (auto &s2 : slots)
                     if (s2.busy && s2.bound >= vr.cmax)
-                        s2.cancel->store(true);
+                        stop_worker(s2);
             }
             else if (res.status == "UNSAT")
             {
-                slot.session.reset();
-                slot.session_bound = LLONG_MAX;
                 slot.preferred_bound = -1;
                 lo = std::max(lo, bound + 1);
                 log("[UNSAT] UB=" + std::to_string(bound) +
                     "  | LB=" + std::to_string(lo) + " UB=" + std::to_string(out.has_best ? out.cmax : upper + 1));
                 for (auto &s2 : slots)
                     if (s2.busy && s2.bound <= bound)
-                        s2.cancel->store(true);
-                for (auto &s2 : slots)
-                {
-                    if (!s2.busy && s2.session && s2.session_bound <= bound)
-                    {
-                        s2.session.reset();
-                        s2.session_bound = LLONG_MAX;
-                    }
-                }
+                        stop_worker(s2);
             }
             else
             {
-                slot.session.reset();
-                slot.session_bound = LLONG_MAX;
                 slot.preferred_bound = -1;
                 log("[TIMEOUT] UB=" + std::to_string(bound));
             }
@@ -265,20 +353,19 @@ static SearchOutcome parallel_binary_search(
             }
         }
 
-        if (!progressed)
-            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        (void)progressed;
         if (lo <= upper && !proven && Clock::now() < deadline)
             start_available();
     }
 
-    // Cho cac slot con dang chay ket thuc (huy hop tac truoc, khong the kill cung), roi bo qua ket qua.
+    // Dung va thu hoi cac process con dang chay.
     for (auto &s : slots)
     {
         if (s.busy)
         {
-            if (s.cancel)
-                s.cancel->store(true);
-            s.fut.wait();
+            stop_worker(s);
+            close(s.fd);
+            waitpid(s.pid, nullptr, 0);
         }
     }
 
@@ -381,9 +468,7 @@ int main(int argc, char **argv)
     bool have_ub_hint = false;
     long long ub_hint = -1;
     unsigned seed = 0;
-    int workers = (int)std::thread::hardware_concurrency();
-    if (workers <= 0)
-        workers = 4;
+    int workers = 4;
     workers = std::min(workers, 4);
 
     std::vector<std::string> args(argv + 1, argv + argc);

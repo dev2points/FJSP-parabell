@@ -1,7 +1,7 @@
 // cadical_worker.hpp
 // Ket noi voi thu vien CaDiCaL (rel-1.9.5, https://github.com/arminbiere/cadical).
 // Moi "bound" (gia tri UB dang thu) duoc giai trong mot Solver CaDiCaL rieng,
-// chay trong mot std::async/thread rieng, co the huy hop tac qua Terminator.
+// chay trong mot process rieng, co the dung qua Terminator hoac SIGTERM.
 #pragma once
 #include "cadical.hpp" // header cua CaDiCaL (build/ hoac src/), xem BUILD.md
 #include "instance.hpp"
