@@ -1,0 +1,646 @@
+{
+    "jobs": [
+        "job_1",
+        "job_2",
+        "job_3",
+        "job_4",
+        "job_5"
+    ],
+    "resources": [
+        "resource_1",
+        "resource_2",
+        "resource_3"
+    ],
+    "operation_types": [
+        "operation_type_1",
+        "operation_type_2",
+        "operation_type_3",
+        "operation_type_4",
+        "operation_type_5"
+    ],
+    "operations": [
+        "job_1_operation_1",
+        "job_1_operation_12",
+        "job_1_operation_2",
+        "job_1_operation_20",
+        "job_1_operation_7",
+        "job_2_operation_1",
+        "job_2_operation_14",
+        "job_2_operation_4",
+        "job_2_operation_6",
+        "job_2_operation_7",
+        "job_3_operation_1",
+        "job_3_operation_11",
+        "job_3_operation_16",
+        "job_3_operation_17",
+        "job_3_operation_7",
+        "job_4_operation_1",
+        "job_4_operation_11",
+        "job_4_operation_13",
+        "job_4_operation_5",
+        "job_4_operation_7",
+        "job_5_operation_1",
+        "job_5_operation_13",
+        "job_5_operation_5",
+        "job_5_operation_7",
+        "job_5_operation_8"
+    ],
+    "operations_jobs": {
+        "job_1_operation_1": "job_1",
+        "job_1_operation_12": "job_1",
+        "job_1_operation_2": "job_1",
+        "job_1_operation_20": "job_1",
+        "job_1_operation_7": "job_1",
+        "job_2_operation_1": "job_2",
+        "job_2_operation_14": "job_2",
+        "job_2_operation_4": "job_2",
+        "job_2_operation_6": "job_2",
+        "job_2_operation_7": "job_2",
+        "job_3_operation_1": "job_3",
+        "job_3_operation_11": "job_3",
+        "job_3_operation_16": "job_3",
+        "job_3_operation_17": "job_3",
+        "job_3_operation_7": "job_3",
+        "job_4_operation_1": "job_4",
+        "job_4_operation_11": "job_4",
+        "job_4_operation_13": "job_4",
+        "job_4_operation_5": "job_4",
+        "job_4_operation_7": "job_4",
+        "job_5_operation_1": "job_5",
+        "job_5_operation_13": "job_5",
+        "job_5_operation_5": "job_5",
+        "job_5_operation_7": "job_5",
+        "job_5_operation_8": "job_5"
+    },
+    "operations_operation_types": {
+        "job_1_operation_1": "operation_type_5",
+        "job_1_operation_12": "operation_type_2",
+        "job_1_operation_2": "operation_type_2",
+        "job_1_operation_20": "operation_type_5",
+        "job_1_operation_7": "operation_type_4",
+        "job_2_operation_1": "operation_type_5",
+        "job_2_operation_14": "operation_type_1",
+        "job_2_operation_4": "operation_type_4",
+        "job_2_operation_6": "operation_type_4",
+        "job_2_operation_7": "operation_type_4",
+        "job_3_operation_1": "operation_type_5",
+        "job_3_operation_11": "operation_type_4",
+        "job_3_operation_16": "operation_type_1",
+        "job_3_operation_17": "operation_type_2",
+        "job_3_operation_7": "operation_type_4",
+        "job_4_operation_1": "operation_type_5",
+        "job_4_operation_11": "operation_type_4",
+        "job_4_operation_13": "operation_type_5",
+        "job_4_operation_5": "operation_type_5",
+        "job_4_operation_7": "operation_type_4",
+        "job_5_operation_1": "operation_type_5",
+        "job_5_operation_13": "operation_type_5",
+        "job_5_operation_5": "operation_type_5",
+        "job_5_operation_7": "operation_type_4",
+        "job_5_operation_8": "operation_type_3"
+    },
+    "precedence_constraints": {
+        "job_1": {
+            "job_1_operation_1": {
+                "job_1_operation_1": 0,
+                "job_1_operation_12": 0,
+                "job_1_operation_2": 0,
+                "job_1_operation_20": 0,
+                "job_1_operation_7": 1
+            },
+            "job_1_operation_12": {
+                "job_1_operation_1": 0,
+                "job_1_operation_12": 0,
+                "job_1_operation_2": 0,
+                "job_1_operation_20": 0,
+                "job_1_operation_7": 1
+            },
+            "job_1_operation_2": {
+                "job_1_operation_1": 0,
+                "job_1_operation_12": 0,
+                "job_1_operation_2": 0,
+                "job_1_operation_20": 0,
+                "job_1_operation_7": 0
+            },
+            "job_1_operation_20": {
+                "job_1_operation_1": 0,
+                "job_1_operation_12": 1,
+                "job_1_operation_2": 1,
+                "job_1_operation_20": 0,
+                "job_1_operation_7": 1
+            },
+            "job_1_operation_7": {
+                "job_1_operation_1": 0,
+                "job_1_operation_12": 0,
+                "job_1_operation_2": 1,
+                "job_1_operation_20": 0,
+                "job_1_operation_7": 0
+            }
+        },
+        "job_2": {
+            "job_2_operation_1": {
+                "job_2_operation_1": 0,
+                "job_2_operation_14": 0,
+                "job_2_operation_4": 0,
+                "job_2_operation_6": 0,
+                "job_2_operation_7": 1
+            },
+            "job_2_operation_14": {
+                "job_2_operation_1": 0,
+                "job_2_operation_14": 0,
+                "job_2_operation_4": 0,
+                "job_2_operation_6": 1,
+                "job_2_operation_7": 0
+            },
+            "job_2_operation_4": {
+                "job_2_operation_1": 0,
+                "job_2_operation_14": 1,
+                "job_2_operation_4": 0,
+                "job_2_operation_6": 0,
+                "job_2_operation_7": 0
+            },
+            "job_2_operation_6": {
+                "job_2_operation_1": 0,
+                "job_2_operation_14": 0,
+                "job_2_operation_4": 0,
+                "job_2_operation_6": 0,
+                "job_2_operation_7": 1
+            },
+            "job_2_operation_7": {
+                "job_2_operation_1": 0,
+                "job_2_operation_14": 0,
+                "job_2_operation_4": 0,
+                "job_2_operation_6": 0,
+                "job_2_operation_7": 0
+            }
+        },
+        "job_3": {
+            "job_3_operation_1": {
+                "job_3_operation_1": 0,
+                "job_3_operation_11": 0,
+                "job_3_operation_16": 0,
+                "job_3_operation_17": 0,
+                "job_3_operation_7": 1
+            },
+            "job_3_operation_11": {
+                "job_3_operation_1": 0,
+                "job_3_operation_11": 0,
+                "job_3_operation_16": 1,
+                "job_3_operation_17": 1,
+                "job_3_operation_7": 1
+            },
+            "job_3_operation_16": {
+                "job_3_operation_1": 0,
+                "job_3_operation_11": 0,
+                "job_3_operation_16": 0,
+                "job_3_operation_17": 1,
+                "job_3_operation_7": 0
+            },
+            "job_3_operation_17": {
+                "job_3_operation_1": 0,
+                "job_3_operation_11": 0,
+                "job_3_operation_16": 0,
+                "job_3_operation_17": 0,
+                "job_3_operation_7": 0
+            },
+            "job_3_operation_7": {
+                "job_3_operation_1": 0,
+                "job_3_operation_11": 0,
+                "job_3_operation_16": 0,
+                "job_3_operation_17": 0,
+                "job_3_operation_7": 0
+            }
+        },
+        "job_4": {
+            "job_4_operation_1": {
+                "job_4_operation_1": 0,
+                "job_4_operation_11": 0,
+                "job_4_operation_13": 0,
+                "job_4_operation_5": 0,
+                "job_4_operation_7": 1
+            },
+            "job_4_operation_11": {
+                "job_4_operation_1": 0,
+                "job_4_operation_11": 0,
+                "job_4_operation_13": 1,
+                "job_4_operation_5": 0,
+                "job_4_operation_7": 1
+            },
+            "job_4_operation_13": {
+                "job_4_operation_1": 0,
+                "job_4_operation_11": 0,
+                "job_4_operation_13": 0,
+                "job_4_operation_5": 0,
+                "job_4_operation_7": 1
+            },
+            "job_4_operation_5": {
+                "job_4_operation_1": 0,
+                "job_4_operation_11": 0,
+                "job_4_operation_13": 0,
+                "job_4_operation_5": 0,
+                "job_4_operation_7": 0
+            },
+            "job_4_operation_7": {
+                "job_4_operation_1": 0,
+                "job_4_operation_11": 0,
+                "job_4_operation_13": 0,
+                "job_4_operation_5": 0,
+                "job_4_operation_7": 0
+            }
+        },
+        "job_5": {
+            "job_5_operation_1": {
+                "job_5_operation_1": 0,
+                "job_5_operation_13": 0,
+                "job_5_operation_5": 0,
+                "job_5_operation_7": 1,
+                "job_5_operation_8": 0
+            },
+            "job_5_operation_13": {
+                "job_5_operation_1": 0,
+                "job_5_operation_13": 0,
+                "job_5_operation_5": 0,
+                "job_5_operation_7": 1,
+                "job_5_operation_8": 0
+            },
+            "job_5_operation_5": {
+                "job_5_operation_1": 0,
+                "job_5_operation_13": 0,
+                "job_5_operation_5": 0,
+                "job_5_operation_7": 0,
+                "job_5_operation_8": 0
+            },
+            "job_5_operation_7": {
+                "job_5_operation_1": 0,
+                "job_5_operation_13": 0,
+                "job_5_operation_5": 0,
+                "job_5_operation_7": 0,
+                "job_5_operation_8": 0
+            },
+            "job_5_operation_8": {
+                "job_5_operation_1": 0,
+                "job_5_operation_13": 1,
+                "job_5_operation_5": 0,
+                "job_5_operation_7": 1,
+                "job_5_operation_8": 0
+            }
+        }
+    },
+    "processing_times": {
+        "job_1_operation_1": {
+            "resource_1": 69,
+            "resource_2": 84
+        },
+        "job_1_operation_12": {
+            "resource_1": 61,
+            "resource_3": 55
+        },
+        "job_1_operation_2": {
+            "resource_1": 61,
+            "resource_3": 55
+        },
+        "job_1_operation_20": {
+            "resource_1": 69,
+            "resource_2": 84
+        },
+        "job_1_operation_7": {
+            "resource_2": 66,
+            "resource_3": 48
+        },
+        "job_2_operation_1": {
+            "resource_1": 69,
+            "resource_2": 84
+        },
+        "job_2_operation_14": {
+            "resource_1": 56,
+            "resource_2": 68
+        },
+        "job_2_operation_4": {
+            "resource_2": 66,
+            "resource_3": 48
+        },
+        "job_2_operation_6": {
+            "resource_2": 66,
+            "resource_3": 48
+        },
+        "job_2_operation_7": {
+            "resource_2": 66,
+            "resource_3": 48
+        },
+        "job_3_operation_1": {
+            "resource_1": 69,
+            "resource_2": 84
+        },
+        "job_3_operation_11": {
+            "resource_2": 66,
+            "resource_3": 48
+        },
+        "job_3_operation_16": {
+            "resource_1": 56,
+            "resource_2": 68
+        },
+        "job_3_operation_17": {
+            "resource_1": 61,
+            "resource_3": 55
+        },
+        "job_3_operation_7": {
+            "resource_2": 66,
+            "resource_3": 48
+        },
+        "job_4_operation_1": {
+            "resource_1": 69,
+            "resource_2": 84
+        },
+        "job_4_operation_11": {
+            "resource_2": 66,
+            "resource_3": 48
+        },
+        "job_4_operation_13": {
+            "resource_1": 69,
+            "resource_2": 84
+        },
+        "job_4_operation_5": {
+            "resource_1": 69,
+            "resource_2": 84
+        },
+        "job_4_operation_7": {
+            "resource_2": 66,
+            "resource_3": 48
+        },
+        "job_5_operation_1": {
+            "resource_1": 69,
+            "resource_2": 84
+        },
+        "job_5_operation_13": {
+            "resource_1": 69,
+            "resource_2": 84
+        },
+        "job_5_operation_5": {
+            "resource_1": 69,
+            "resource_2": 84
+        },
+        "job_5_operation_7": {
+            "resource_2": 66,
+            "resource_3": 48
+        },
+        "job_5_operation_8": {
+            "resource_2": 80,
+            "resource_3": 58
+        }
+    },
+    "setup_times": {
+        "operation_type_1": {
+            "operation_type_1": {
+                "resource_1": 0,
+                "resource_2": 0,
+                "resource_3": 0
+            },
+            "operation_type_2": {
+                "resource_1": 13
+            },
+            "operation_type_3": {
+                "resource_2": 8
+            },
+            "operation_type_4": {
+                "resource_2": 11
+            },
+            "operation_type_5": {
+                "resource_1": 0,
+                "resource_2": 0
+            },
+            "k0": {
+                "resource_1": 0,
+                "resource_2": 0,
+                "resource_3": 0,
+                "m0": 0
+            }
+        },
+        "operation_type_2": {
+            "operation_type_1": {
+                "resource_1": 13
+            },
+            "operation_type_2": {
+                "resource_1": 0,
+                "resource_2": 0,
+                "resource_3": 0
+            },
+            "operation_type_3": {
+                "resource_3": 15
+            },
+            "operation_type_4": {
+                "resource_3": 19
+            },
+            "operation_type_5": {
+                "resource_1": 7
+            },
+            "k0": {
+                "resource_1": 0,
+                "resource_2": 0,
+                "resource_3": 0,
+                "m0": 0
+            }
+        },
+        "operation_type_3": {
+            "operation_type_1": {
+                "resource_2": 8
+            },
+            "operation_type_2": {
+                "resource_3": 15
+            },
+            "operation_type_3": {
+                "resource_1": 0,
+                "resource_2": 0,
+                "resource_3": 0
+            },
+            "operation_type_4": {
+                "resource_2": 0,
+                "resource_3": 0
+            },
+            "operation_type_5": {
+                "resource_2": 8
+            },
+            "k0": {
+                "resource_1": 0,
+                "resource_2": 0,
+                "resource_3": 0,
+                "m0": 0
+            }
+        },
+        "operation_type_4": {
+            "operation_type_1": {
+                "resource_2": 11
+            },
+            "operation_type_2": {
+                "resource_3": 19
+            },
+            "operation_type_3": {
+                "resource_2": 0,
+                "resource_3": 0
+            },
+            "operation_type_4": {
+                "resource_1": 0,
+                "resource_2": 0,
+                "resource_3": 0
+            },
+            "operation_type_5": {
+                "resource_2": 8
+            },
+            "k0": {
+                "resource_1": 0,
+                "resource_2": 0,
+                "resource_3": 0,
+                "m0": 0
+            }
+        },
+        "operation_type_5": {
+            "operation_type_1": {
+                "resource_1": 0,
+                "resource_2": 0
+            },
+            "operation_type_2": {
+                "resource_1": 7
+            },
+            "operation_type_3": {
+                "resource_2": 8
+            },
+            "operation_type_4": {
+                "resource_2": 8
+            },
+            "operation_type_5": {
+                "resource_1": 0,
+                "resource_2": 0,
+                "resource_3": 0
+            },
+            "k0": {
+                "resource_1": 0,
+                "resource_2": 0,
+                "resource_3": 0,
+                "m0": 0
+            }
+        },
+        "k0": {
+            "operation_type_1": {
+                "resource_1": 0,
+                "resource_2": 0,
+                "resource_3": 0,
+                "m0": 0
+            },
+            "operation_type_2": {
+                "resource_1": 0,
+                "resource_2": 0,
+                "resource_3": 0,
+                "m0": 0
+            },
+            "operation_type_3": {
+                "resource_1": 0,
+                "resource_2": 0,
+                "resource_3": 0,
+                "m0": 0
+            },
+            "operation_type_4": {
+                "resource_1": 0,
+                "resource_2": 0,
+                "resource_3": 0,
+                "m0": 0
+            },
+            "operation_type_5": {
+                "resource_1": 0,
+                "resource_2": 0,
+                "resource_3": 0,
+                "m0": 0
+            },
+            "k0": {
+                "resource_1": 0,
+                "resource_2": 0,
+                "resource_3": 0,
+                "m0": 0
+            }
+        }
+    },
+    "transport_times": {
+        "resource_1": {
+            "resource_1": 0,
+            "resource_2": 15,
+            "resource_3": 25,
+            "m0": 0
+        },
+        "resource_2": {
+            "resource_1": 15,
+            "resource_2": 0,
+            "resource_3": 10,
+            "m0": 0
+        },
+        "resource_3": {
+            "resource_1": 25,
+            "resource_2": 10,
+            "resource_3": 0,
+            "m0": 0
+        },
+        "m0": {
+            "resource_1": 0,
+            "resource_2": 0,
+            "resource_3": 0
+        }
+    },
+    "blocked_times": {
+        "resource_1": 0,
+        "resource_2": 0,
+        "resource_3": 0
+    },
+    "operation_classes": {
+        "job_1_operation_1": 0,
+        "job_1_operation_12": 1,
+        "job_1_operation_2": 1,
+        "job_1_operation_20": 1,
+        "job_1_operation_7": 1,
+        "job_2_operation_1": 0,
+        "job_2_operation_14": 1,
+        "job_2_operation_4": 1,
+        "job_2_operation_6": 1,
+        "job_2_operation_7": 1,
+        "job_3_operation_1": 0,
+        "job_3_operation_11": 0,
+        "job_3_operation_16": 1,
+        "job_3_operation_17": 1,
+        "job_3_operation_7": 1,
+        "job_4_operation_1": 0,
+        "job_4_operation_11": 0,
+        "job_4_operation_13": 1,
+        "job_4_operation_5": 1,
+        "job_4_operation_7": 1,
+        "job_5_operation_1": 0,
+        "job_5_operation_13": 1,
+        "job_5_operation_5": 1,
+        "job_5_operation_7": 1,
+        "job_5_operation_8": 1,
+        "k0": {
+            "job_1": 1,
+            "job_2": 1,
+            "job_3": 1,
+            "job_4": 1,
+            "job_5": 1
+        }
+    },
+    "resources_for_k": {
+        "operation_type_1": [
+            "resource_1",
+            "resource_2"
+        ],
+        "operation_type_2": [
+            "resource_1",
+            "resource_3"
+        ],
+        "operation_type_3": [
+            "resource_2",
+            "resource_3"
+        ],
+        "operation_type_4": [
+            "resource_2",
+            "resource_3"
+        ],
+        "operation_type_5": [
+            "resource_1",
+            "resource_2"
+        ]
+    }
+}
